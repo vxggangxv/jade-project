@@ -1,0 +1,157 @@
+doctype html
+html(lang="ko-KR")
+	head
+		meta(http-equiv="X-UA-Compatible", content="IE=Edge")
+		title Jade 기본 문법
+		link(rel="stylesheet", href="css/style.css")
+		//- style, script 요소 고드 블록
+		style.
+			body.main {
+				background-image: url(patterns/green_gobbler.png);
+			}
+			.active {color: red;}
+		script.
+			document.onclick = function(){
+				console.log('Jade -> HTMl 문서');
+			};
+
+	//- Javascript 변수 표현식을 이용한 처리
+	-var isIndexPage = !true
+	//- Class 속성을 Javascript 배열로 동적 제어
+	-var classList = ['jade', 'template', 'engine']
+	body(class=[isIndexPage? 'main' : 'sub'], class=classList)
+		h1 HTML 요소 이름
+		p CSS 선택자와 유사
+
+
+		section: article: h3 블록 확장(공간절약을 위한 인라인 구문 제공)
+		//- Emet 표기법을 Jade에 활용
+		nav#gnb(role="navigation")
+			ul
+				li
+					a(href="#")
+						img(src="", alt="")
+				li
+					a(href="#")
+						img(src="", alt="")
+				li
+					a(href="#")
+						img(src="", alt="")
+
+		p 일반적인 내용 입력은 요소 뒤에 내용을 입력합니다.
+		p 
+			| 사용해도 위 방식과 결과가 동일합니다.
+
+		p 
+			| Jade에서 여러 줄을
+			| 사용하고자 할 경우는
+			| 기호'|'를 사용합니다.
+
+		//- 인라인 요소를 추가하는 방법
+		h3 인라인 요소를 추가하는 방법
+		p Jade에서 요소 내부에 텍스트를 추가하는 <span>일방적인 방식은 요소 뒤에 한 칸 공백을 두고 내용 텍스트를 입력하는 것</span>입니다. 그 외의 사용법은 <strong>파이프(|) 기호를 사용해서 아래 라인에 내용을 추가</strong>해도 됩니다.
+			| <em>마지막으로 여러 죽을 입력하고자 한다면 파이프 기호를 연이어 사용</em>하면 됩니다.
+			| <italic>여러</italic> 
+			| <b>요래</b> <em>요래래</em>
+
+		<!-- HTML주석 지원 -->
+
+		// Jade 주석, 컴파일 시 HTML 문서에 주석 내용이 추가됩니다.
+
+		//
+			여러 줄 주석의 경우
+			이와 같이 사용하면 됩니다.
+
+		//- Jade주석 뒤에 하이픈(-)을 붙이면 HTML문서에 주석 내용이 추가되지 않습니다.
+
+		<!--[if lt IE 9]>IE 조건부 주석문은 그대로 사용합니다.<![endif]-->
+
+		//- 현재 페이지 활성화
+		-var curUrl = '/'
+		nav
+			ul
+				li: a(href="/", class=(curUrl=='/'?'active':'')) 홈
+				li: a(href="/about", class=(curUrl=='/about'?'active':'')) 홈
+	
+		h3  코드 출력
+		ul
+			li
+				p 이스케이프(Escape)
+				pre: code= '<footer>&copy; joon9.net</footer>'
+				pre: code!= '<footer>&copy; joon9.net</footer>'
+				//- 특수문자 &을 하이퍼링크에 사요할 때 이스케이프 처리
+				a(href="http://terms.naver.com") 이스케이프 문자
+				a(href!="http://terms.naver.com") 이스케이프 문자
+		
+		//- &attributes() 를 활용한 Javascript 객체로 속성 추가
+		section#news: article&attributes({
+			'class': ['post', 'highlight'],
+			'data-category': 'sports'
+		})
+
+		//- http://jade-lang.com/reference/case
+		h3 조건문(Conditionals)
+		//- 변수 설정
+		-var usingJquery = false
+		//- 조건문
+		if usingJquery
+			// usingJquery 변수가 참(true)이어서 실행된 결과
+			script(src="//code.jquery.com/jquery.min.js")
+			p jQuery를 현재 문서에서 사용합니다.
+		else
+			// usingJquery 변수가 거짓(flase)이이서 실행된 결과
+			p jQuery를 현재 문서에서는 사용하지 않습니다.
+
+		//- http://jade-lang.com/reference/iteration
+		h3 반복문(Iteration)
+
+		// 배열 내부에 객체 활용
+		-var navContents = [{'link':'/', 'content':'홈'}, {'link':'/about', 'content':'소개'}, {'link':'/products', 'content':'제품'}, {'link':'/supports', 'content':'지원'}]
+		nav: ul
+			each item in navContents
+				li: a(href=item.link)=item.content
+
+		// 믹스인 navi정의
+		mixin navi(naviContents)
+			nav: ul
+				each item in naviContents
+					li: a(href=item.link)=item.content
+
+		// 믹스인 navi생성
+		+navi([
+			{link: '/', content: '홈'},
+			{link: '/about', content: '소개품'},
+			{link: '/products', content: '제품'},
+			{link: '/supports', content: '지원'},
+		])
+
+
+
+		// 믹스인 navi정의
+		mixin navi2D(naviContents)
+			nav: ul
+				each D1_item in naviContents
+					li: a(href=D1_item.link)=D1_item.content
+						if D1_item.child
+							ul
+								each D2_item in D1_item.child
+									li: a(href=D2_item.link)=D2_item.content
+
+		// 믹스인 navi생성
+		+navi2D([
+			{link: '/', content: '홈'},
+			{link: '/about', content: '소개품'},
+			{
+				link: '/products', 
+				content: '제품원',
+				child: [
+					{link: '/products/screen', content: '스크린'},
+					{link: '/products/keyboard', content: '키보드'},
+				]
+			},
+			{link: '/supports', content: '지원'},
+		])
+		
+		//- 오류남
+		//- mixin navLink(item)
+		//- a(href=item.link)=item.content
